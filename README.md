@@ -121,3 +121,27 @@ Tests cover sample identity for all signals, nonperiodic line-scan generation, b
 ## Scope
 
 This is a one-dimensional, finite-record DFT demonstration. Filtering assumes periodic extension of the sampled record and does not perform padding to approximate linear convolution.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0.
+See `LICENSE` for details.
+
+## Contact
+
+### Author
+
+Carl Salvaggio, Ph.D.  
+Professor of Imaging Science  
+Director, Digital Imaging and Remote Sensing (DIRS) Laboratory
+
+### E-mail
+
+carl.salvaggio@rit.edu
+
+### Organization
+
+Chester F. Carlson Center for Imaging Science  
+Rochester Institute of Technology  
+Rochester, New York, 14623  
+United States
