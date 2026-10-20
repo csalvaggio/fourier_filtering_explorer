@@ -113,6 +113,28 @@ class FilteringTests(unittest.TestCase):
         self.assertLess(np.count_nonzero(a > 1e-9), 5)
         self.assertGreater(np.count_nonzero(b > 1e-4), 20)
 
+    def test_periodic_interference_is_exact_bin_frequency(self):
+        for n in SAMPLE_COUNTS:
+            noisy = sample_signal(State(n=n, signal=9))
+            x, f = coordinates(n)
+            base = (0.20 + 0.65 * np.exp(-0.5 * (x / (0.36 * 1.3)) ** 2)
+                    + 0.14 * np.exp(-0.5 * ((x + 1.15) / 0.25) ** 2))
+            interference = noisy - base
+            spectrum = np.fft.fftshift(np.fft.fft(interference)) / n
+            self.assertAlmostEqual(abs(spectrum[np.argmin(abs(f - 2.0))]), 0.11, places=12)
+            self.assertAlmostEqual(abs(spectrum[np.argmin(abs(f + 2.0))]), 0.11, places=12)
+            self.assertLess(np.sum(np.abs(spectrum[np.abs(f) != 2.0])), 1e-12)
+
+    def test_new_keyboard_signals_and_titles(self):
+        app = Explorer()
+        try:
+            app.on_key(SimpleNamespace(key='0'))
+            self.assertEqual(app.state.signal, 9)
+            self.assertEqual(app.axes[0].get_title(), SIGNALS[9])
+            self.assertEqual(app.axes[5].get_title(), f"Filtered {SIGNALS[9]}")
+        finally:
+            plt.close(app.fig)
+
     def test_main_retains_keyboard_handler_during_show(self):
         # GUI callbacks hold a weak reference to Explorer.on_key.
         # Verify main() retains Explorer across an event-loop collection.
@@ -155,7 +177,7 @@ class FilteringTests(unittest.TestCase):
     def test_keyboard(self):
         app = Explorer()
         for key in ('8', 'v', 'v', 'f', 't', 'up', 'down', 'w', 'W', 'left', 'right',
-                    'b', 'B', 'o', 'O', 'l', '9', '+', '-', 'r'):
+                    'b', 'B', 'o', 'O', 'l', '9', '0', '+', '-', 'r'):
             app.on_key(SimpleNamespace(key=key))
         self.assertEqual(app.state.signal, 0)
         self.assertEqual(app.state.window, 0)

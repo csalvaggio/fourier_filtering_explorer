@@ -15,6 +15,7 @@ SIGNALS = (
     "Rectangle", "Triangle", "Sine (integer cycles)", "Gaussian",
     "Sawtooth", "Two rectangles", "Rectangle train",
     "Sine (noninteger cycles)", "Chirp (nonperiodic)",
+    "Signal with periodic noise",
 )
 FILTERS = ("Low-pass", "High-pass", "Band-pass", "Band-reject")
 FAMILIES = ("Ideal", "Gaussian", "Butterworth")
@@ -25,7 +26,7 @@ WINDOWS = ("None", "Hann", "Hamming")
 # Remove only our keys from Matplotlib's defaults, leaving other shortcuts
 # such as Ctrl+S/Cmd+S to save figures intact.
 EXPLORER_KEYS = frozenset(
-    tuple(str(i) for i in range(1, 10))
+    tuple(str(i) for i in range(10))
     + ("f", "t", "v", "up", "down", "b", "B", "o", "O", "w", "W",
        "[", "]", "left", "right", "+", "=", "shift+=", "-",
        "l", "r", "home", "q", "escape")
@@ -97,6 +98,14 @@ def sample_signal(state: State) -> np.ndarray:
     elif state.signal == 8:
         t = np.arange(n) / n
         y = np.sin(2 * np.pi * (1.5 * t + 10.0 * t * t))
+    elif state.signal == 9:
+        # Smooth underlying feature plus coherent interference at exactly
+        # eight cycles/record: 8/LENGTH = 2 cycles per x-unit. This isolates
+        # cleanly in DFT bins and is suitable for band-reject demonstrations.
+        t = np.arange(n) / n
+        baseline = (0.20 + 0.65 * np.exp(-0.5 * (x / (0.36 * w)) ** 2)
+                    + 0.14 * np.exp(-0.5 * ((x + 1.15) / 0.25) ** 2))
+        y = baseline + 0.22 * np.sin(2 * np.pi * 8 * t)
     else:
         raise ValueError("Unknown signal")
     return np.roll(y, state.shift)
@@ -193,7 +202,7 @@ class Explorer:
                       fontsize=19, weight="bold")
         self.instructions = self.fig.text(
             0.5, 0.931,
-            "1–9 signal  |  f filter  |  t response  |  v window  |  ↑/↓ cutoff  |  b/B bandwidth  |  o/O order\n"
+            "1–9/0 signal  |  f filter  |  t response  |  v window  |  ↑/↓ cutoff  |  b/B bandwidth  |  o/O order\n"
             "w/W width  |  [/] separation or repetitions  |  ←/→ shift  |  +/- samples  |  l dB  |  r reset  |  q quit",
             ha="center", va="top", fontsize=10, linespacing=1.6,
             family="monospace")
@@ -215,6 +224,8 @@ class Explorer:
             return
         if key in tuple(str(i) for i in range(1, 10)):
             s = replace(s, signal=int(key) - 1)
+        elif key == "0":
+            s = replace(s, signal=9)
         elif key == "f":
             s = replace(s, filter_type=(s.filter_type + 1) % len(FILTERS))
         elif key == "t":

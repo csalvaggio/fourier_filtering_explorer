@@ -34,7 +34,7 @@ The three frequency-domain plots share the full **±Nyquist** axis range, which 
 
 | Key | Action |
 |---|---|
-| `1`–`9` | Choose input function |
+| `1`–`9`, `0` | Choose input function |
 | `f` | Cycle low-pass / high-pass / band-pass / band-reject |
 | `t` | Cycle ideal / Gaussian / Butterworth responses |
 | `v` | Cycle no window / Hann / Hamming |
@@ -64,6 +64,7 @@ The default is a 256-sample rectangle and ideal low-pass with cutoff 2 cycles pe
 | `7` | Rectangle train | Discrete harmonic comb and duty cycle |
 | `8` | Noninteger-cycle sine | Spectral leakage from endpoint mismatch |
 | `9` | Chirp | Time-varying frequency content, broad spectrum, endpoint mismatch |
+| `0` | Signal with periodic noise | Smooth underlying signal with eight cycles of coherent sinusoidal interference across the record |
 
 **Note on periodicity:** A DFT *always* treats its finite input sequence as one period of a periodic extension. A noninteger-cycle sinusoid has a discontinuity in that extension, giving leakage across many DFT bins. The chirp is also intentionally nonperiodic across the sampled record. Windowing can reduce sidelobe leakage but widens the central spectral lobe and changes amplitudes.
 
@@ -97,7 +98,8 @@ The RMS change on the status line is `rms(filtered_signal - windowed_input)`, **
 3. **Windowing and leakage:** Select `8` then toggle `l` to dB view and `v` to compare no window, Hann and Hamming. Adjust the noninteger sine frequency with `w` / `W`.
 4. **Select a band of harmonics:** Select `7`; switch to band-pass (`f` twice from reset) and adjust center with arrows, width with `b`/`B`.
 5. **Change filter order:** Select Butterworth via `t`, then use `o`/`O` to contrast slow and sharp transition bands.
-6. **Circular filtering at boundaries:** Select a nonperiodic sine/chirp and watch the inverse DFT output near the interval endpoints.
+6. **Circular filtering at boundaries:** Select `0` for a reflectance line scan (or `8`/`9` for other nonperiodic examples), then examine filtering near the interval endpoints.
+7. **Remove periodic interference:** Select `n` for a smooth signal with an eight-cycle sinusoid at **2 cycles per x-unit** (DFT bins ±8). Set ideal **Band-reject**, center cutoff **2.00**, bandwidth **1.00**, and window **None**. Both interfering spectral lines are removed while most of the underlying signal is retained. Switch to **Band-pass** with the same settings to isolate the interference along with any underlying energy in the selected band.
 
 ## Tests
 
@@ -107,7 +109,7 @@ Run the standard-library unittest suite (no additional test packages required):
 python3 -m unittest -v test_fourier_filtering_explorer.py
 ```
 
-Tests cover sample identity for all signals, window definitions, real/even filter responses, spectral leakage of integer vs. noninteger sinusoids, and GUI-independent keyboard callbacks. They use Matplotlib's noninteractive `Agg` backend. A desktop smoke test remains useful to verify focus and display geometry with your macOS/Linux GUI backend.
+Tests cover sample identity for all signals, nonperiodic line-scan generation, bin-aligned interference, window definitions, real/even filter responses, spectral leakage of integer vs. noninteger sinusoids, and GUI-independent keyboard callbacks. They use Matplotlib's noninteractive `Agg` backend. A desktop smoke test remains useful to verify focus and display geometry with your macOS/Linux GUI backend.
 
 ## Files
 
@@ -119,22 +121,3 @@ Tests cover sample identity for all signals, window definitions, real/even filte
 ## Scope
 
 This is a one-dimensional, finite-record DFT demonstration. Filtering assumes periodic extension of the sampled record and does not perform padding to approximate linear convolution.
-
-## Contact
-
-### Author
-
-Carl Salvaggio, Ph.D.  
-Professor of Imaging Science  
-Director, Digital Imaging and Remote Sensing (DIRS) Laboratory
-
-### E-mail
-
-carl.salvaggio@rit.edu
-
-### Organization
-
-Chester F. Carlson Center for Imaging Science  
-Rochester Institute of Technology  
-Rochester, New York, 14623  
-United States
