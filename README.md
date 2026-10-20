@@ -119,3 +119,22 @@ Tests cover sample identity for all signals, window definitions, real/even filte
 ## Scope
 
 This is a one-dimensional, finite-record DFT demonstration. Filtering assumes periodic extension of the sampled record and does not perform padding to approximate linear convolution.
+
+## Contact
+
+### Author
+
+Carl Salvaggio, Ph.D.  
+Professor of Imaging Science  
+Director, Digital Imaging and Remote Sensing (DIRS) Laboratory
+
+### E-mail
+
+carl.salvaggio@rit.edu
+
+### Organization
+
+Chester F. Carlson Center for Imaging Science  
+Rochester Institute of Technology  
+Rochester, New York, 14623  
+United States
