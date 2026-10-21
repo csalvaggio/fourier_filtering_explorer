@@ -145,7 +145,9 @@ def filter_transfer_function(frequencies: np.ndarray, state: State) -> np.ndarra
             return (a >= cut).astype(float)
         if state.family == 1:
             return 1.0 - np.exp(-0.5 * (a / cut) ** 2)
-        # Butterworth high-pass with zero DC (not just 1 - low-pass magnitude).
+
+        # Butterworth high-pass with zero DC
+        # (not just 1 - low-pass magnitude).
         out = np.zeros_like(a)
         nz = a > 0
         out[nz] = 1.0 / np.sqrt(1.0 + (cut / a[nz]) ** (2 * order))
@@ -153,12 +155,25 @@ def filter_transfer_function(frequencies: np.ndarray, state: State) -> np.ndarra
 
     if state.filter_type == 0:
         return low(c)
+
     if state.filter_type == 1:
         return high(c)
-    if state.filter_type == 2:
-        return high(lo) * low(hi)
-    if state.filter_type == 3:
-        return 1.0 - high(lo) * low(hi)
+
+    if state.filter_type in (2, 3):
+        # Define a band around the actual frequency of maximum transmission.
+        # This avoids moving the Gaussian/Butterworth maximum away from c
+        # when high(lo) and low(hi) have overlapping transitions.
+        if state.family == 0:
+            bandpass = ((a >= lo) & (a <= hi)).astype(float)
+        elif state.family == 1:
+            bandpass = np.exp(-0.5 * ((a - c) / (bw / 2)) ** 2)
+        else:
+            bandpass = 1.0 / np.sqrt(
+                1.0 + ((a - c) / (bw / 2)) ** (2 * order)
+            )
+
+        return bandpass if state.filter_type == 2 else 1.0 - bandpass
+
     raise ValueError("Unknown filter")
 
 
